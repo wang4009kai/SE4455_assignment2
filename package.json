@@ -1,0 +1,25 @@
+{
+  "name": "se4455_assignment2",
+  "version": "1.0.0",
+  "description": "SE4455 Assignment2",
+  "main": "Router.js",
+  "scripts": {
+    "watch": "nodemon ./start.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wang4009kai/SE4455_assignment2.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/wang4009kai/SE4455_assignment2/issues"
+  },
+  "homepage": "https://github.com/wang4009kai/SE4455_assignment2#readme",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "mongoose": "^5.4.16",
+    "nodemon": "^1.18.10",
+    "socket.io": "^2.2.0"
+  }
+}
