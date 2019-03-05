@@ -2,7 +2,7 @@ var http = require('http');
 var express = require('express');
 var server = express.Router();
 var mongodb = require('mongodb');
-var mongoURL = "mongodb://localhost:27017/db";
+var mongoURL = "mongodb://vrcloud:vrcloud1@ds145895.mlab.com:45895/vm_monitor";
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
 //var io = require('socket.io')(3000);
@@ -16,7 +16,7 @@ server.get('/login', (req, res) =>
 {
     var loggedInUser =
     {
-        userName: req.body.user,
+        userName: req.body.userName,
         password: req.body.password,
     }
 
@@ -34,6 +34,23 @@ server.get('/login', (req, res) =>
     {
         res.redirect('/login');
     }
+
+    //res.send("Request received.");
+}),
+
+server.post('/login', (req, res) =>
+{
+	console.log('made it to login route');
+    let newUser = new user();
+	newUser.username = req.body.userName;
+	newUser.password = req.body.password;
+    newUser.save()
+        .then(newUser => {
+            res.status(200).json({'user': 'user added successfully'});
+        })
+        .catch(err => {
+            res.status(400).send('adding new user failed');
+        });
 
     //res.send("Request received.");
 }),
