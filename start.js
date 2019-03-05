@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 require('./models/user');
 require('./models/vm');
 
-mongoose.connect("mongodb://localhost:27017/db", {useMongoClient: false});
+mongoose.connect("mongodb://vrcloud:vrcloud1@ds145895.mlab.com:45895/vm_monitor", { useNewUrlParser: true });
 mongoose.Promise = global.Promise;
 mongoose.connection.on('connected', () =>
 {
@@ -18,3 +18,4 @@ const server = app.listen(8080, () =>
 {
 console.log('listening');
 });
+
