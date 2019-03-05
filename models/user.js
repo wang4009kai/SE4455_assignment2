@@ -10,6 +10,16 @@ const userSchema = new mongoose.Schema({
     {
         type: String
     },
+
+    id:
+    {
+        type: Number
+    },
+
+    vmsOwned:
+    {
+        type: Number
+    }
 });
 
 module.exports = mongoose.model('user', userSchema);

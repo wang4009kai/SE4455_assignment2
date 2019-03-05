@@ -5,14 +5,26 @@ var mongodb = require('mongodb');
 var mongoURL = "mongodb://localhost:27017/db";
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
-//var io = require('socket.io')(3000);
-
+var io = require('socket.io-client');
+var socket = io.connect('http://localhost:3000', {reconnection: true});
 const user = mongoose.model('user');
 const vm = mongoose.model('vm');
+var response;
 
 server.use(bodyParser.json());
 
-server.get('/login', (req, res) =>
+socket.on('connect', function()
+{
+    socket.on("clientEvent", function(data)
+    {
+        console.log("Working2...");
+        //socket.emit("serverEvent", "Hello!");
+        response = data;
+    })
+});
+
+
+server.post('/login', (req, res) =>
 {
     var loggedInUser =
     {
@@ -27,12 +39,12 @@ server.get('/login', (req, res) =>
 
     if(foundUser.password == loggedInUser.password)
     {
-        res.redirect('/homePage');
+        res.send("true");
     }
 
     else
     {
-        res.redirect('/login');
+        res.send("false");
     }
 
     //res.send("Request received.");
@@ -40,91 +52,87 @@ server.get('/login', (req, res) =>
 
 server.get('/createServer', (req, res) =>
 {
-    var response;
     //generate random id
-    var id = Math.floor(Math.random()* 10000 + 1);
+    //var id = Math.floor(Math.random()* 10000 + 1);
 
-    var socket = io();
-    socket.on('connect', function()
+    console.log("Working...");
+    socket.emit("serverEvent", "Hello!","Hello!", "Hello!", "create", Date(), function(data)
     {
-        socket.send('event', id, req.body.id, req.body.vmType, "create", Date(), function(data)
-        {
-            response = data;
-        });
+        console.log(data);
+        res.send(data);
+
     });
 
-    res.send(response);
 }),
 
 server.get('/startServer', (req, res) =>
 {
-    var response;
-    socket.on('connect', function()
+    console.log("Working...");
+    socket.emit("serverEvent", "Hello!", function(data)
     {
-        socket.send('event', req.body.vmID, req.body.id, req.body.vmType, "start", Date(), function(data)
-        {
-            response = data;
-        });
-    });
+        console.log(data);
+        res.send(data);
 
-    res.send(response);
+    });
 
 }),
 
 server.get('/stopServer', (req, res) =>
 {
-    var response;
-    socket.on('connect', function()
+    console.log("Working...");
+    socket.emit("serverEvent", "Hello!","Hello!", "Hello!", "stop", Date(), function(data)
     {
-        socket.send('event', req.body.vmID, req.body.id, req.body.vmType, "stop", Date(), function(data)
-        {
-            response = data;
-        });
-    });
+        console.log(data);
+        res.send(data);
 
-    res.send(response);
+    });
 
 }),
 
 server.get('/deleteServer', (req, res) =>
 {
-    var response;
-    socket.on('connect', function()
+    console.log("Working...");
+    socket.emit("serverEvent", "Hello!","Hello!", "Hello!", "delete", Date(), function(data)
     {
-        socket.send('event', req.body.vmID, req.body.id, req.body.vmType, "delete", Date(), function(data)
-        {
-            response = data;
-        });
+        console.log(data);
+        res.send(data);
+
     });
-
-    res.send(response);
-
 }),
 
 server.get('/upgradeServer', (req, res) =>
 {
-    var response;
-    socket.on('connect', function()
+    console.log("Working...");
+    socket.emit("serverEvent", "Hello!","Hello!", "Hello!", "upgrade", Date(), function(data)
     {
-        socket.send('event', req.body.vmID, req.body.id, req.body.vmType, "upgrade", Date(), function(data)
-        {
-            response = data;
-        });
-    });
+        console.log(data);
+        res.send(data);
 
-    res.send(response);
+    });
     
 }),
 
 server.get('/requestUsage', (req, res) =>
 {
-    
+    console.log("Working...");
+    socket.emit("serverEvent", "Hello!","Hello!", "Hello!", "requestUsage", Date(), function(data)
+    {
+        console.log(data);
+        res.send(data);
+
+    });
 
 }),
 
 server.get('/totalCharges', (req, res) =>
 {
-    res.send("Request received.");
+    console.log("Working...");
+    socket.emit("serverEvent", "Hello!","Hello!", "Hello!", "requestTotalCharges", Date(), function(data)
+    {
+        console.log(data);
+        res.send(data);
+
+    });
 
 });
 

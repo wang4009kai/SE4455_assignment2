@@ -2,20 +2,28 @@
 const express = require('express');
 const app = express();
 var resourceAgent = require('http').Server(app);
-var socket1 = require('socket.io')(resourceAgent);
+var socket1 = require('socket.io').listen(3000);
 var user = require('../models/user');
 var vm = require('../models/vm');
-resourceAgent.listen(3000);
 
 socket1.on('connection', function(socket)
 {
-    socket.on('event', function(vmID, ccID, vmType, eventType, timeStamp, fn)
+    console.log("Working1...");
+    socket.on("serverEvent", function(vmID, ccID, vmType, eventType, date, fn)
     {
-        //Create Server Message
+        
+        
         if(eventType == "create")
         {
+            console.log("Working...");
             //generate random id
             var id = Math.floor(Math.random()* 10000 + 1);
+
+            var theUser = user.findOne(
+                {
+                    id: ccID
+                }
+            )
 
             var id1 = vm.findOne(
             {
@@ -24,6 +32,7 @@ socket1.on('connection', function(socket)
         
             while(id == id1)
             {
+                console.log("Working...");
                 id =  Math.floor(Math.random()* 10000 + 1);
                 id1 = vm.findOne(
                 {
@@ -31,61 +40,75 @@ socket1.on('connection', function(socket)
                 }
                 )
             }
-        
-            var newVM = new vm(id, req.body.cc, req.body.template);
+
+            
+            var vmData = {"vmID": id, "ccID": ccID, "vmType": vmType};
+            var newVM = new vm(vmData);
+            theUser.vmsOwned.push(id);
             newVM.save();
+            fn("New VM created.");
         }
 
+        //Add start timestamp to list of timestamps
         else if(eventType == "start")
         {
-            var id = vm.findOne(
+            console.log("Working...");
+            var theVM = vm.findOne(
                 {
                     vmID: vmID
                 }
             )
 
-            //Add start timestamp to list of timestamps
+            theVM.timeStampStart.push(Date());
+            theVM.save();
+            fn("VM started");
         }
 
-        
+        //Add stop timestamp and type to list of timestamps
         else if(eventType == "stop")
         {
-            var id = vm.findOne(
+            var theVM = vm.findOne(
                 {
                     vmID: vmID
                 }
             )
 
-            //Add stop timestamp to list of timestamps
+            theVM.timeStampStop.push(Date());
+            theVM.timeStampType.push(vmType);
+            theVM.save();
+            fn("VM stopped");
         }
 
-        
+        //Delete the VM
         else if(eventType == "delete")
         {
-            var id = vm.findOne(
+            var theVM = vm.findOne(
                 {
                     vmID: vmID
                 }
             )
 
-            //Think about what to do here
+            vm.remove(theVM);
+            fn("VM deleted");
         }
 
-        
+        //Change the VM type + save time stamps
         else if(eventType == "upgrade")
         {
-            var id = vm.findOne(
+            var theVM = vm.findOne(
                 {
                     vmID: vmID
                 }
             )
 
-            //Add upgrade timestamp
-
-            id.vmType = vmType;
-            id.save();
+            theVM.timeStampStop.push(Date());
+            theVM.vmType = vmType;
+            theVM.timeStampStart.push(Date());
+            theVM.save();
+            fn("VM upgraded.");
         }
 
+        //Add up the usage and return
         else if(eventType == "requestUsage")
         {
             var id = vm.findOne(
@@ -94,12 +117,16 @@ socket1.on('connection', function(socket)
                 }
             )
 
-
-        
-
-
+            var i;
+            var usage;
+            for(i = 0; i < timeStampStop.length; i++)
+            {
+                usage += timeStampStop[i] - timeStampStart[i];
+            }
+            fn(usage);
         }
 
+        //Add up charges for all vms owned by customer and return
         else if(eventType == "requestTotalCharges")
         {
             var customer = user.findOne(
@@ -107,8 +134,28 @@ socket1.on('connection', function(socket)
                     userName: ccID
                 }
             )
+
+            var i;
+            var totalCharge;
+            for(i = 0; i < customer.vmsOwned.length; i++)    
+            {
+                var theVM = vm.findOne(
+                    {
+                        vmID: customer.vmsOwned[i]
+                    }
+                )
+
+                var j;
+
+                for(j = 0; j < theVM.timeStampStop.length; j++)
+                {
+                    totalCharge += theVM.timeStampStop[j] - theVM.timeStampStart[j];
+                }
+
+            }      
             
-            //Get all the VM data + send back charges
+            fn(totalCharge);
+        
         }
 
     })

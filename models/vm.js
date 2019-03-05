@@ -16,6 +16,39 @@ const vmSchema = new mongoose.Schema({
         type: String
     },
 
+    timeStampStart:
+    {
+        type: Date
+    },
+
+    timeStampStop:
+    {
+        type: Date
+    },
+
+    timeStampType:
+    {
+        type: String
+    },
+
+    /*timeStamps:
+    [
+        {
+            vmtypes:
+            {
+                type: String
+            },
+            vmStartTimeStamp:
+            {
+                type: Date
+            },
+
+            vmStopTimeStamp:
+            {
+                type:Date
+            }
+        },
+    ]*/
 });
 
 module.exports = mongoose.model('vm', vmSchema);
