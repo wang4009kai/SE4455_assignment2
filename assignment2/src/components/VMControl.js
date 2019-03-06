@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-import { Button, Header, Form, Radio, Popup, Table, Segment } from 'semantic-ui-react'
+import { Button, Header, Form, Radio, Popup, Table, Segment, Checkbox} from 'semantic-ui-react'
 
 class VMControl extends Component {
     constructor(props) {
@@ -11,6 +11,9 @@ class VMControl extends Component {
             cost: 0,
             showTemplate: false,
             showCost: false,
+            time: null,
+            startTime: null,
+            endTime: null,
         };
         this.getVMs();
     }
@@ -125,6 +128,23 @@ class VMControl extends Component {
         this.setState({value: null});
     }
 
+    requestTime() {
+        axios.post("https://localhost:8080/requestTime",
+            {
+                user: this.state.email,
+                start: this.state.startTime,
+                end: this.state.endTime,
+            }).then(function (response) {
+            this.setState({time: response.data});
+        }).catch(e => console.log(e));
+    }
+
+    handleTimeChange = event => {
+        this.setState({
+            [event.target.id]: event.target.value
+        });
+    }
+
     myVM() {
         let container = [];
         this.state.VMs.map((item, i) => {
@@ -160,6 +180,21 @@ class VMControl extends Component {
             <div>
                 <div>
                     <Button onClick={() => this.getCost()}>Get Cost</Button>
+                    { this.state.showCost ? (<Segment>{this.state.cost}</Segment>) : null}
+                </div>
+                <div>
+                    <Form>
+                        <Form.Field>
+                            <label>Start Time</label>
+                            <input value={this.state.startTime} onChange={this.handleTimeChange}  />
+                        </Form.Field>
+                        <Form.Field>
+                            <label>End Time</label>
+                            <input value={this.state.endTime} onChange={this.handleTimeChange} />
+                        </Form.Field>
+                        <Button onClick={() => this.requestTime()}>Submit</Button>
+                        <p>{this.state.time}</p>
+                    </Form>
                 </div>
                 <Table celled padded>
                     <Table.Header>
@@ -177,7 +212,6 @@ class VMControl extends Component {
                 <br/>
                 <div>
                     <Button onClick={() => this.createVM()}>Create VM</Button>
-                    { this.state.showCost ? (<Segment>{this.state.cost}</Segment>) : null}
                 </div>
                 <br/>
                 { this.state.showTemplate ? (
