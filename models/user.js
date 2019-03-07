@@ -17,9 +17,9 @@ const userSchema = new mongoose.Schema({
     },
 
     vmsOwned:
-    {
+    [{
         type: Number
-    }
+    }]
 });
 
 module.exports = mongoose.model('user', userSchema);

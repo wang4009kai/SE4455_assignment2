@@ -21,7 +21,7 @@ socket1.on('connection', function(socket)
 
             var theUser = user.findOne(
                 {
-                    id: ccID
+                    userName: ccID
                 }
             )
 
@@ -43,7 +43,9 @@ socket1.on('connection', function(socket)
 
             
             var vmData = {"vmID": id, "ccID": ccID, "vmType": vmType};
+            //console.log(vmData.vmID);
             var newVM = new vm(vmData);
+            console.log(theUser.userName);
             theUser.vmsOwned.push(id);
             newVM.save();
             fn(newVM);

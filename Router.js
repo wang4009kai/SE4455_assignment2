@@ -9,10 +9,11 @@ var io = require('socket.io-client');
 var socket = io.connect('http://localhost:3000', {reconnection: true});
 const user = mongoose.model('user');
 const vm = mongoose.model('vm');
+var cors = require('cors');
 var response;
 
 server.use(bodyParser.json());
-
+server.use(cors());
 socket.on('connect', function()
 {
     socket.on("clientEvent", function(data)
@@ -50,12 +51,14 @@ server.post('/login', (req, res) =>
     //res.send("Request received.");
 }),
 
-server.post('/login', (req, res) =>
+server.post('/signUp', (req, res) =>
 {
 	console.log('made it to login route');
     let newUser = new user();
-	newUser.username = req.body.userName;
-	newUser.password = req.body.password;
+	newUser.userName = req.body.userName;
+    newUser.password = req.body.password;
+    console.log(req.body.userName);
+    console.log(req.body.password);
     newUser.save()
         .then(newUser => {
             res.status(200).json({'user': 'user added successfully'});
@@ -68,7 +71,7 @@ server.post('/login', (req, res) =>
 }),
 
 //Return a list of VMs owned by the current user
-server.get('/startPage', (req,res) =>
+server.get('/getVM', (req,res) =>
 {
     var currentUser = user.findOne(
         {
@@ -89,13 +92,14 @@ server.get('/startPage', (req,res) =>
     res.send(vmList);
 }),
 
-server.get('/createServer', (req, res) =>
+server.post('/create', (req, res) =>
 {
-    //generate random id
-    //var id = Math.floor(Math.random()* 10000 + 1);
 
-    console.log("Working...");
-    socket.emit("serverEvent", "Hello!","Hello!", "Hello!", "create", Date(), function(data)
+    //console.log("Working...");
+    console.log(req.body.userName);
+    console.log(req.body.type)
+    //(vmID, ccID, vmType, eventType, date, fn)
+    socket.emit("serverEvent", "Hello!", req.body.userName, req.body.type, "create", Date(), function(data)
     {
         console.log(data);
         res.send(data);
@@ -104,10 +108,10 @@ server.get('/createServer', (req, res) =>
 
 }),
 
-server.get('/startServer', (req, res) =>
+server.post('/startServer', (req, res) =>
 {
     console.log("Working...");
-    socket.emit("serverEvent", "Hello!", function(data)
+    socket.emit("serverEvent", "Hello!", req.body.userName, req.body.type, "start", function(data)
     {
         console.log(data);
         res.send(data);
@@ -116,10 +120,10 @@ server.get('/startServer', (req, res) =>
 
 }),
 
-server.get('/stopServer', (req, res) =>
+server.post('/stopServer', (req, res) =>
 {
     console.log("Working...");
-    socket.emit("serverEvent", "Hello!","Hello!", "Hello!", "stop", Date(), function(data)
+    socket.emit("serverEvent", "Hello!", req.body.userName, req.body.type, "stop", Date(), function(data)
     {
         console.log(data);
         res.send(data);
@@ -131,7 +135,7 @@ server.get('/stopServer', (req, res) =>
 server.get('/deleteServer', (req, res) =>
 {
     console.log("Working...");
-    socket.emit("serverEvent", "Hello!","Hello!", "Hello!", "delete", Date(), function(data)
+    socket.emit("serverEvent", "Hello!", req.body.userName, req.body.type, "delete", Date(), function(data)
     {
         console.log(data);
         res.send(data);
@@ -139,10 +143,10 @@ server.get('/deleteServer', (req, res) =>
     });
 }),
 
-server.get('/upgradeServer', (req, res) =>
+server.post('/upgradeServer', (req, res) =>
 {
     console.log("Working...");
-    socket.emit("serverEvent", "Hello!","Hello!", "Hello!", "upgrade", Date(), function(data)
+    socket.emit("serverEvent", "Hello!", req.body.userName, req.body.type, "upgrade", Date(), function(data)
     {
         console.log(data);
         res.send(data);
@@ -151,10 +155,10 @@ server.get('/upgradeServer', (req, res) =>
     
 }),
 
-server.get('/requestUsage', (req, res) =>
+server.post('/requestUsage', (req, res) =>
 {
     console.log("Working...");
-    socket.emit("serverEvent", "Hello!","Hello!", "Hello!", "requestUsage", Date(), function(data)
+    socket.emit("serverEvent", "Hello!", req.body.userName, req.body.type, "requestUsage", Date(), function(data)
     {
         console.log(data);
         res.send(data);
@@ -163,7 +167,7 @@ server.get('/requestUsage', (req, res) =>
 
 }),
 
-server.get('/totalCharges', (req, res) =>
+server.post('/totalCharges', (req, res) =>
 {
     console.log("Working...");
     socket.emit("serverEvent", "Hello!","Hello!", "Hello!", "requestTotalCharges", Date(), function(data)

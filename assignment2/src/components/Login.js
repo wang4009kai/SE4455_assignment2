@@ -17,12 +17,12 @@ class Login extends Component {
     }
 
     validateLogin() {
-        axios.post("https://localhost:8080/login",
+        axios.post("http://localhost:8080/login",
             {
-                user: this.state.email,
+                userName: this.state.email,
                 password: this.state.password
-            }).then(function (response) {
-                if(response.data.result) { this.props.updateParent(this.state.email);}
+            }).then( (response) => {
+                if(response.data) { this.props.updateParent(this.state.email);}
             }).catch(e => console.log(e));
     }
 
@@ -57,7 +57,7 @@ class Login extends Component {
                         block
                         bsSize="large"
                         disabled={!this.validateForm()}
-                        type="submit"
+                        
                         onClick={this.validateLogin}
                     >
                         Login

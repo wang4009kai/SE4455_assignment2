@@ -6,7 +6,8 @@ class VMControl extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            email: this.props.username,
+            //email: this.props.username,
+            email: "kai",
             VMs: [],
             cost: 0,
             showTemplate: false,
@@ -21,10 +22,10 @@ class VMControl extends Component {
     handleChange = (e, { value }) => this.setState({ value })
 
     getVMs() {
-        axios.post("https://localhost:8080/getVM",
+        axios.post("http://localhost:8080/getVM",
             {
-                user: this.state.email,
-            }).then(function (response) {
+                userName: this.state.email,
+            }).then( (response) =>{
                 response.data.forEach(item => this.state.VMs.push(item));
             }).catch(e => console.log(e));
     }
@@ -34,10 +35,10 @@ class VMControl extends Component {
             this.setState({showCost: false});
         } else {
             this.setState({showCost: true});
-            axios.post("https://localhost:8080/getCost",
+            axios.post("http://localhost:8080/getCost",
                 {
-                    user: this.state.email,
-                }).then(function (response) {
+                    ususerNameer: this.state.email,
+                }).then((response) => {
                 this.state.cost = response.data.cost;
             }).catch(e => console.log(e));
         }
@@ -56,11 +57,11 @@ class VMControl extends Component {
     }
 
     deleteVM(id) {
-        axios.post("https://localhost:8080/delete",
+        axios.post("http://localhost:8080/delete",
             {
-                user: this.state.email,
+                userName: this.state.email,
                 vm: id,
-            }).then(function (response) {
+            }).then( (response) => {
                 let array = this.state.VMs;
                 let index = this.state.VMs.indexOf(id);
                 array.splice(index, 1);
@@ -69,11 +70,11 @@ class VMControl extends Component {
     }
 
     startVM(id) {
-        axios.post("https://localhost:8080/start",
+        axios.post("http://localhost:8080/start",
             {
-                user: this.state.email,
+                userName: this.state.email,
                 vm: id,
-            }).then(function (response) {
+            }).then( (response) => {
             let array = this.state.VMs;
             let index = this.state.VMs.indexOf(id);
             array[index].status = 'start';
@@ -82,11 +83,11 @@ class VMControl extends Component {
     }
 
     stopVM(id) {
-        axios.post("https://localhost:8080/stop",
+        axios.post("http://localhost:8080/stop",
             {
-                user: this.state.email,
+                userName: this.state.email,
                 vm: id,
-            }).then(function (response) {
+            }).then( (response) => {
             let array = this.state.VMs;
             let index = this.state.VMs.indexOf(id);
             array[index].status = 'stop';
@@ -99,23 +100,23 @@ class VMControl extends Component {
             let array = this.state.VMs;
             let index = this.state.VMs.indexOf(this.state.focus);
             if (array[index].type != this.state.value) {
-                axios.post("https://localhost:8080/delete",
+                axios.post("http://localhost:8080/delete",
                     {
-                        user: this.state.email,
+                        userName: this.state.email,
                         vm: this.state.focus,
                         type: this.state.value,
-                    }).then(function (response) {
+                    }).then( (response) =>{
 
                     array[index].type = this.state.value;
                     this.setState({VMs: array});
                 }).catch(e => console.log(e));
             }
         } else if (this.state.action === 'create') {
-            axios.post("https://localhost:8080/create",
+            axios.post("http://localhost:8080/create",
                 {
-                    user: this.state.email,
-                    vm: this.state.value,
-                }).then(function (response) {
+                    userName: this.state.email,
+                    type: this.state.value,
+                }).then( (response) =>{
                 let array = this.state.VMs;
                 array.push(response.data)
                 this.setState({VMs: array});
@@ -129,12 +130,12 @@ class VMControl extends Component {
     }
 
     requestTime() {
-        axios.post("https://localhost:8080/requestTime",
+        axios.post("http://localhost:8080/requestTime",
             {
-                user: this.state.email,
+                userName: this.state.email,
                 start: this.state.startTime,
                 end: this.state.endTime,
-            }).then(function (response) {
+            }).then( (response) =>{
             this.setState({time: response.data});
         }).catch(e => console.log(e));
     }
