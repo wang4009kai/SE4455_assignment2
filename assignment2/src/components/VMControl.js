@@ -26,7 +26,9 @@ class VMControl extends Component {
             {
                 userName: this.state.email,
             }).then( (response) =>{
-                response.data.forEach(item => this.state.VMs.push(item));
+                let storage = [];
+                response.data.forEach(item => {storage.push(item); console.log(item);});
+                this.setState({VMs: storage});
             }).catch(e => console.log(e));
     }
 
@@ -37,9 +39,9 @@ class VMControl extends Component {
             this.setState({showCost: true});
             axios.post("http://localhost:8080/getCost",
                 {
-                    ususerNameer: this.state.email,
+                    username: this.state.email,
                 }).then((response) => {
-                this.state.cost = response.data.cost;
+                this.setState({cost: response.data});
             }).catch(e => console.log(e));
         }
     }
@@ -76,7 +78,11 @@ class VMControl extends Component {
                 vm: id,
             }).then( (response) => {
             let array = this.state.VMs;
-            let index = this.state.VMs.indexOf(id);
+            let index;
+            this.state.VMs.map((item, i) => {
+                if(item.id === id)
+                    index = i;
+            });
             array[index].status = 'start';
             this.setState({VMs: array});
         }).catch(e => console.log(e));
@@ -89,7 +95,11 @@ class VMControl extends Component {
                 vm: id,
             }).then( (response) => {
             let array = this.state.VMs;
-            let index = this.state.VMs.indexOf(id);
+            let index;
+            this.state.VMs.map((item, i) => {
+                if(item.id === id)
+                    index = i;
+            });
             array[index].status = 'stop';
             this.setState({VMs: array});
         }).catch(e => console.log(e));
@@ -98,17 +108,21 @@ class VMControl extends Component {
     makeChange(){
         if(this.state.action === 'upgrade') {
             let array = this.state.VMs;
-            let index = this.state.VMs.indexOf(this.state.focus);
+            let index;
+            this.state.VMs.map((item, i) => {
+                if(item.id === this.state.focus)
+                    index = i;
+            });
+            let type = this.state.value;
             if (array[index].type != this.state.value) {
-                axios.post("http://localhost:8080/delete",
+                axios.post("http://localhost:8080/upgrade",
                     {
                         userName: this.state.email,
                         vm: this.state.focus,
-                        type: this.state.value,
+                        type: type,
                     }).then( (response) =>{
-
-                    array[index].type = this.state.value;
-                    this.setState({VMs: array});
+                        array[index].type = type;
+                        this.setState({VMs: array});
                 }).catch(e => console.log(e));
             }
         } else if (this.state.action === 'create') {
@@ -127,6 +141,7 @@ class VMControl extends Component {
         this.setState({action: null});
         this.setState({showTemplate:false});
         this.setState({value: null});
+        this.setState({focus: null});
     }
 
     requestTime() {
@@ -159,7 +174,7 @@ class VMControl extends Component {
                     <Table.Cell singleLine>{item.type}</Table.Cell>
                     <Table.Cell singleLine>{item.status}</Table.Cell>
                     <Table.Cell>
-                        <Button color='blue' onClick={() => this.upgradeVM(item.id)}>Modify VM</Button>
+                        <Button color='blue' onClick={() => this.upgradeVM(item.id, item.type)}>Modify VM</Button>
                     </Table.Cell>
                     <Table.Cell textAlign='right'>
                         <Button color='red' onClick={() => this.deleteVM(item.id)}>Delete VM</Button>
@@ -183,6 +198,7 @@ class VMControl extends Component {
                     <Button onClick={() => this.getCost()}>Get Cost</Button>
                     { this.state.showCost ? (<Segment>{this.state.cost}</Segment>) : null}
                 </div>
+                <br/>
                 <div>
                     <Form>
                         <Form.Field>
@@ -193,7 +209,7 @@ class VMControl extends Component {
                             <label>End Time</label>
                             <input value={this.state.endTime} onChange={this.handleTimeChange} />
                         </Form.Field>
-                        <Button onClick={() => this.requestTime()}>Submit</Button>
+                        <Button onClick={() => this.requestTime()}>Get Usage Time</Button>
                         <p>{this.state.time}</p>
                     </Form>
                 </div>
