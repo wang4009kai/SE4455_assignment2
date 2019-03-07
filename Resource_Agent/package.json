@@ -1,0 +1,17 @@
+{
+  "name": "resource_agent",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "watch2": "nodemon ./start.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "missing": "0.0.1",
+    "nodemon": "^1.18.10"
+  },
+  "devDependencies": {},
+  "description": ""
+}
