@@ -39,7 +39,7 @@ server.post('/login', (req, res) =>
 
     if(foundUser.password == loggedInUser.password)
     {
-        res.send("true");
+        res.send(foundUser.id);
     }
 
     else
@@ -65,6 +65,28 @@ server.post('/login', (req, res) =>
         });
 
     //res.send("Request received.");
+}),
+
+//Return a list of VMs owned by the current user
+server.get('/startPage', (req,res) =>
+{
+    var currentUser = user.findOne(
+        {
+            userName: req.body.userName
+        });
+
+    var vmList;
+
+    var i;
+    for(i; i < currentUser.vmsOwned.length; i++)
+    {
+        var theVM = vm.findOne(
+            {
+                vmID: currentUser.vmsOwned[i]
+            });
+        vmList.push(theVM);
+    }
+    res.send(vmList);
 }),
 
 server.get('/createServer', (req, res) =>
