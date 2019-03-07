@@ -46,9 +46,9 @@ socket1.on('connection', function(socket)
             var newVM = new vm(vmData);
             theUser.vmsOwned.push(id);
             newVM.save();
-            fn("New VM created.");
+            fn(newVM);
         }
-
+        
         //Add start timestamp to list of timestamps
         else if(eventType == "start")
         {
