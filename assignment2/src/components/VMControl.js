@@ -7,7 +7,7 @@ class VMControl extends Component {
         super(props);
         this.state = {
             //email: this.props.username,
-            email: "kai",
+            email: "a",
             VMs: [],
             cost: 0,
             showTemplate: false,
@@ -37,9 +37,10 @@ class VMControl extends Component {
             this.setState({showCost: false});
         } else {
             this.setState({showCost: true});
-            axios.post("http://localhost:8080/getCost",
+            axios.post("http://localhost:8080/totalCharges",
                 {
-                    username: this.state.email,
+                    userName: this.state.email,
+
                 }).then((response) => {
                 this.setState({cost: response.data});
             }).catch(e => console.log(e));
@@ -59,7 +60,7 @@ class VMControl extends Component {
     }
 
     deleteVM(id) {
-        axios.post("http://localhost:8080/delete",
+        axios.post("http://localhost:8080/deleteServer",
             {
                 userName: this.state.email,
                 vm: id,
@@ -77,7 +78,7 @@ class VMControl extends Component {
     }
 
     startVM(id) {
-        axios.post("http://localhost:8080/start",
+        axios.post("http://localhost:8080/startServer",
             {
                 userName: this.state.email,
                 vm: id,
@@ -94,7 +95,7 @@ class VMControl extends Component {
     }
 
     stopVM(id) {
-        axios.post("http://localhost:8080/stop",
+        axios.post("http://localhost:8080/stopServer",
             {
                 userName: this.state.email,
                 vm: id,
@@ -121,6 +122,7 @@ class VMControl extends Component {
             let type = this.state.value;
             if (array[index].type != this.state.value) {
                 axios.post("http://localhost:8080/upgrade",
+
                     {
                         userName: this.state.email,
                         vm: this.state.focus,
@@ -131,7 +133,7 @@ class VMControl extends Component {
                 }).catch(e => console.log(e));
             }
         } else if (this.state.action === 'create') {
-            axios.post("http://localhost:8080/create",
+            axios.post("http://localhost:8080/createServer",
                 {
                     userName: this.state.email,
                     type: this.state.value,

@@ -10,14 +10,15 @@ class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            authenticated: true,
+            authenticated: false,
+            email: ''
         };
         this.updateLogin = this.updateLogin.bind(this);
     }
 
     updateLogin(email) {
         this.setState({email: email});
-        this.setState({authenticated: true});
+        this.setState({authenticated: false});
     }
 
     render() {
