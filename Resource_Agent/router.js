@@ -15,7 +15,7 @@ var response;
 socket1.on('connection', function(socket)
 {
     console.log("Working1...");
-    socket.on("serverEvent", function(vmID, ccID, ccPassword, vmType, eventType, date, fn)
+    socket.on("serverEvent", function(start, stop, vmID, ccID, ccPassword, vmType, eventType, date, fn)
     {
         
         if(eventType == "login")
@@ -70,7 +70,6 @@ socket1.on('connection', function(socket)
                 .catch(err => {
                     fn('adding new user failed');
                 });
-        //res.send("Request received.");
         }
 
         else if(eventType == "getVM")
@@ -90,7 +89,6 @@ socket1.on('connection', function(socket)
                                 {
                                     console.log(someVM.vmID);
                                     vmList.push(someVM);
-                                    //console.log("VM list length:" + vmList.length);
                                   
                                     if(someVM.vmID == someUser.vmsOwned[someUser.vmsOwned.length-1])
                                     {
@@ -120,29 +118,14 @@ socket1.on('connection', function(socket)
         
             queryPromise.then(
                 function(someUser)
-                {
-                    console.log("Hello: " + someUser);
-                    
-                    /*vm.findOne({vmID: id}, function(err, someVM)
-                    {
-                      if(someVM.id == id)
-                      {
-
-                      }
-                    });*/
-                                
-            var vmData = {"vmID": id, "ccID": ccID, "vmType": vmType};
-            //console.log(vmData.vmID);
-            var newVM = new vm(vmData);
-            //console.log("Name: " + theUser.userName);
-            //console.log("User: " + ccID);
-           // console.log("User2: " + theUser.userName);
-            someUser.vmsOwned.push(id);
-            newVM.save();
-            someUser.save();
-            console.log("new vm created" + id);
-            fn(newVM);
-
+                { 
+                    var vmData = {"vmID": id, "ccID": ccID, "vmType": vmType};
+                    var newVM = new vm(vmData);
+                    someUser.vmsOwned.push(id);
+                    newVM.save();
+                    someUser.save();
+                    console.log("new vm created" + id);
+                    fn(newVM);
                 }
             );
         }
@@ -151,108 +134,128 @@ socket1.on('connection', function(socket)
         else if(eventType == "start")
         {
             console.log("Working...");
-            var theVM = vm.findOne(
+            vm.findOne({vmID: vmID}, function(err, theVM)
+            {
+                if(theVM)
                 {
-                    vmID: vmID
+                    theVM.timeStampStart.push(Date());
+                    theVM.save();
+                    fn("VM started");
                 }
-            )
-
-            theVM.timeStampStart.push(Date());
-            theVM.save();
-            fn("VM started");
+                else
+                {
+                    console.log("Error finding VM.")    
+                }
+                //fn("completed");
+            });
         }
 
         //Add stop timestamp and type to list of timestamps
         else if(eventType == "stop")
         {
-            var theVM = vm.findOne(
+            console.log("Working...");
+            vm.findOne({vmID: vmID}, function(err, theVM)
+            {
+                if(theVM)
                 {
-                    vmID: vmID
+                    theVM.timeStampStop.push(Date());
+                    theVM.timeStampType.push(theVM.vmType);
+                    theVM.save();
+                    fn("VM stopped");
                 }
-            )
-
-            theVM.timeStampStop.push(Date());
-            theVM.timeStampType.push(vmType);
-            theVM.save();
-            fn("VM stopped");
+                else
+                {
+                    console.log("Error finding VM.")    
+                }
+            });
         }
 
         //Delete the VM
         else if(eventType == "delete")
         {
-            var theVM = vm.findOne(
-                {
-                    vmID: vmID
-                }
-            )
+            vm.findOne({vmID: vmID}, function(err, theVM)
+            {
+                console.log("Deleting vm");
+                theVM.delete();
+                fn("Deleted the VM.");
+            });
 
-            vm.remove(theVM);
-            fn("VM deleted");
         }
 
         //Change the VM type + save time stamps
         else if(eventType == "upgrade")
         {
-            var theVM = vm.findOne(
-                {
-                    vmID: vmID
-                }
-            )
-
-            theVM.timeStampStop.push(Date());
-            theVM.vmType = vmType;
-            theVM.timeStampStart.push(Date());
-            theVM.save();
-            fn("VM upgraded.");
+            vm.findOne({vmID: vmID}, function(err, theVM)
+            {
+                theVM.timeStampStop.push(Date());
+                theVM.vmType = vmType;
+                theVM.timeStampStart.push(Date());
+                theVM.save();
+                fn("VM upgraded.");
+            });
         }
 
         //Add up the usage and return
         else if(eventType == "requestUsage")
         {
-            var id = vm.findOne(
-                {
-                    vmID: vmID
-                }
-            )
-
-            var i;
-            var usage;
-            for(i = 0; i < timeStampStop.length; i++)
+            var id = vm.findOne({vmID: vmID}, function(err, theVM)
             {
-                usage += timeStampStop[i] - timeStampStart[i];
-            }
-            fn(usage);
+                var i;
+                var usage;
+                for(i = 0; i < theVM.timeStampStop.length; i++)
+                {
+                    if(start > theVM.timeStampStart[i] && start < theVM.timeStampStop[i])
+                    {
+                        if(stop > timeStampStop[i])
+                        {
+                            usage += timeStampStop[i] - start;
+                        }
+
+                        else
+                        {
+                            usage += stop - start;
+                        }
+                        
+                    }
+                }
+                fn(usage);
+            });   
         }
 
         //Add up charges for all vms owned by customer and return
         else if(eventType == "requestTotalCharges")
         {
-            var customer = user.findOne(
+                user.findOne({userName: ccID}, function(err, someUser)
                 {
-                    userName: ccID
-                }
-            )
 
-            var i;
-            var totalCharge;
-            for(i = 0; i < customer.vmsOwned.length; i++)    
-            {
-                var theVM = vm.findOne(
+                    var i;
+                    var totalCharge = 0;
+                    if(someUser)
                     {
-                        vmID: customer.vmsOwned[i]
-                    }
-                )
-
-                var j;
-
-                for(j = 0; j < theVM.timeStampStop.length; j++)
-                {
-                    totalCharge += theVM.timeStampStop[j] - theVM.timeStampStart[j];
-                }
-
-            }      
+                        for(i = 0; i < someUser.vmsOwned.length; i++)    
+                        {
+                            vm.findOne({vmID: someUser.vmsOwned[i]}, function(err, theVM)
+                            {
+                                  
+                                var j;
+                                
+                                for(j = 0; j < theVM.timeStampStop.length; j++)
+                                {
+                                    totalCharge += theVM.timeStampStop[j] - theVM.timeStampStart[j];
+                                    console.log(totalCharge);
+                                    if(theVM.vmID == someUser.vmsOwned[someUser.vmsOwned.length-1])
+                                    {
+                                        console.log("Working" + totalCharge);
+                                        fn(totalCharge);
+                                    }
+                                    
+                                }
+                                });
             
-            fn(totalCharge);
+                        }      
+                    }
+
+                });
         
         }
 

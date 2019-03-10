@@ -22,7 +22,7 @@ socket.on('connect', function()
 
 server.post('/login', (req, res) =>
 {
-    socket.emit("serverEvent", "Hello!", req.body.userName, req.body.password, req.body.type, "login", Date(), function(data)
+    socket.emit("serverEvent", "Hello!", "Hello!", "Hello!", req.body.userName, req.body.password, req.body.type, "login", Date(), function(data)
     {
         console.log(data);
         res.send(data);
@@ -33,7 +33,7 @@ server.post('/login', (req, res) =>
 server.post('/signup', (req, res) =>
 {
     console.log("Hello!");
-    socket.emit("serverEvent", "Hello!", req.body.userName, req.body.password, req.body.type, "signup", Date(), function(data)
+    socket.emit("serverEvent", "Hello!", "Hello!", "Hello!", req.body.userName, req.body.password, req.body.type, "signup", Date(), function(data)
     {
         console.log(data);
         res.send(data);
@@ -44,7 +44,7 @@ server.post('/signup', (req, res) =>
 //Return a list of VMs owned by the current user
 server.post('/getVM', (req,res) =>
 {
-    socket.emit("serverEvent", "Hello!", req.body.userName, req.body.password, req.body.type, "getVM", Date(), function(data)
+    socket.emit("serverEvent", "Hello!", "Hello!", "Hello!", req.body.userName, req.body.password, req.body.type, "getVM", Date(), function(data)
     {
         console.log(data);
         res.send(data);
@@ -60,7 +60,7 @@ server.post('/createServer', (req, res) =>
     //console.log(req.body.userName);
     //console.log(req.body.type)
     //(vmID, ccID, vmType, eventType, date, fn)
-    socket.emit("serverEvent", "Hello!", req.body.userName, req.body.password, req.body.type, "create", Date(), function(data)
+    socket.emit("serverEvent", "Hello!", "Hello!", "Hello!", req.body.userName, req.body.password, req.body.type, "create", Date(), function(data)
     {
         console.log(data);
         res.send(data);
@@ -72,7 +72,8 @@ server.post('/createServer', (req, res) =>
 server.post('/startServer', (req, res) =>
 {
     console.log("Working...");
-    socket.emit("serverEvent", "Hello!", req.body.userName, req.body.password, req.body.type, "start", function(data)
+    console.log(req.body.vm);
+    socket.emit("serverEvent", "Hello!", "Hello!", req.body.vm, req.body.userName, req.body.password, req.body.type, "start", Date(), function(data)
     {
         console.log(data);
         res.send(data);
@@ -84,7 +85,7 @@ server.post('/startServer', (req, res) =>
 server.post('/stopServer', (req, res) =>
 {
     console.log("Working...");
-    socket.emit("serverEvent", "Hello!", req.body.userName, req.body.password, req.body.type, "stop", Date(), function(data)
+    socket.emit("serverEvent", "Hello!", "Hello!", req.body.vm, req.body.userName, req.body.password, req.body.type, "stop", Date(), function(data)
     {
         console.log(data);
         res.send(data);
@@ -93,10 +94,10 @@ server.post('/stopServer', (req, res) =>
 
 }),
 
-server.get('/deleteServer', (req, res) =>
+server.post('/deleteServer', (req, res) =>
 {
     console.log("Working...");
-    socket.emit("serverEvent", "Hello!", req.body.userName, req.body.password, req.body.type, "delete", Date(), function(data)
+    socket.emit("serverEvent", "Hello!", "Hello!", req.body.vm, req.body.userName, req.body.password, req.body.type, "delete", Date(), function(data)
     {
         console.log(data);
         res.send(data);
@@ -104,10 +105,10 @@ server.get('/deleteServer', (req, res) =>
     });
 }),
 
-server.post('/upgradeServer', (req, res) =>
+server.post('/upgrade', (req, res) =>
 {
     console.log("Working...");
-    socket.emit("serverEvent", "Hello!", req.body.userName, req.body.password, req.body.type, "upgrade", Date(), function(data)
+    socket.emit("serverEvent", "Hello!", "Hello!", req.body.vm, req.body.userName, req.body.password, req.body.type, "upgrade", Date(), function(data)
     {
         console.log(data);
         res.send(data);
@@ -119,7 +120,7 @@ server.post('/upgradeServer', (req, res) =>
 server.post('/requestUsage', (req, res) =>
 {
     console.log("Working...");
-    socket.emit("serverEvent", "Hello!", req.body.userName, req.body.password, req.body.type, "requestUsage", Date(), function(data)
+    socket.emit("serverEvent", "Hello!", "Hello!", "Hello!", req.body.userName, req.body.password, req.body.type, "requestUsage", Date(), function(data)
     {
         console.log(data);
         res.send(data);
@@ -131,10 +132,10 @@ server.post('/requestUsage', (req, res) =>
 server.post('/totalCharges', (req, res) =>
 {
     console.log("Working...");
-    socket.emit("serverEvent", "Hello!","Hello!", "Hello!", "Hello!", "requestTotalCharges", Date(), function(data)
+    socket.emit("serverEvent", "Hello!", "Hello!", "Hello!", req.body.userName, "Hello!", "Hello!", "requestTotalCharges", Date(), function(data)
     {
         console.log(data);
-        res.send(data);
+        res.send("Cost: " + data);
 
     });
 

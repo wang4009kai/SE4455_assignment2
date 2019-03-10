@@ -17,19 +17,19 @@ const vmSchema = new mongoose.Schema({
     },
 
     timeStampStart:
-    {
+    [{
         type: Date
-    },
+    }],
 
     timeStampStop:
-    {
+    [{
         type: Date
-    },
+    }],
 
     timeStampType:
-    {
+    [{
         type: String
-    },
+    }],
 
     /*timeStamps:
     [
