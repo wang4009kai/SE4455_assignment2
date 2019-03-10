@@ -17,9 +17,8 @@ class App extends Component {
     }
 
     updateLogin(email) {
-        this.state.email = email;
-        this.setState({authenticated: true});
-        this.forceUpdate();
+        this.setState({email: email});
+        this.setState({authenticated: false});
     }
 
     render() {
