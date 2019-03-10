@@ -115,7 +115,14 @@ socket1.on('connection', function(socket)
             //generate random id
             var id = Math.floor(Math.random()* 10000 + 1);
             var queryPromise = user.findOne({userName: ccID}).exec();
-        
+            
+            vm.findOne({vmID: id}, function(err, theVM)
+            {
+                if(theVM)
+                {
+                    fn(false);
+                }
+            });
             queryPromise.then(
                 function(someUser)
                 { 
@@ -178,8 +185,21 @@ socket1.on('connection', function(socket)
             vm.findOne({vmID: vmID}, function(err, theVM)
             {
                 console.log("Deleting vm");
-                theVM.delete();
-                fn("Deleted the VM.");
+                user.findOne({userName: ccID}, function(err, someUser)
+                {
+                    var i;
+                    for(i = 0; i < someUser.vmsOwned.length; i++)
+                    {
+                        if(someUser.vmsOwned[i] == theVM.vmID)
+                        {
+                            console.log(i);
+                            someUser.vmsOwned.splice(i);
+                            someUser.save();
+                            theVM.delete();
+                            fn("Deleted the VM.");
+                        }
+                    }
+                });
             });
 
         }
@@ -200,27 +220,72 @@ socket1.on('connection', function(socket)
         //Add up the usage and return
         else if(eventType == "requestUsage")
         {
-            var id = vm.findOne({vmID: vmID}, function(err, theVM)
+            vm.findOne({vmID: vmID}, function(err, theVM)
             {
                 var i;
-                var usage;
-                for(i = 0; i < theVM.timeStampStop.length; i++)
+                var usage = 0;
+                var startDate2 = start.split("-");
+                var startDate = new Date(startDate2[0], startDate2[1] - 1, startDate2[2]);
+
+                var stopDate2 = stop.split("-");
+                var stopDate = new Date(stopDate2[0], stopDate2[1] - 1, stopDate2[2]);
+
+                console.log(startDate);
+                console.log(stopDate);
+                if(theVM)
                 {
-                    if(start > theVM.timeStampStart[i] && start < theVM.timeStampStop[i])
+                   
+                    //console.log(theVM.vmID);
+                    //console.log(theVM.timeStampStop.length);
+                    for(i = 0; i < theVM.timeStampStop.length; i++)
                     {
-                        if(stop > timeStampStop[i])
+                        //console.log("not working...")
+                        if(startDate > theVM.timeStampStart[i] && startDate < theVM.timeStampStop[i])
                         {
-                            usage += timeStampStop[i] - start;
+                            console.log("This is working.");
+                            if(stopDate > theVM.timeStampStop[i])
+                            {
+                                var num = Math.abs(theVM.timeStampStop[i].getTime() - startDate.getTime());
+                                usage += num;
+                                console.log(usage);
+                                //console.log("Hello: " + Math.abs(theVM.timeStampStop[i].getTime() - startDate.getTime()));
+                            }
+    
+                            else
+                            {
+                                var num = Math.abs(stopDate.getTime() - startDate.getTime());
+                                usage += num;
+                                console.log(usage);
+                            }
+                            
+                        }
+
+                        else if(startDate < theVM.timeStampStart[i] && stopDate > theVM.timeStampStart[i])
+                        {
+                            console.log("This is working.");
+                            if(stopDate > theVM.timeStampStop[i])
+                            {
+                                var num = Math.abs(theVM.timeStampStart[i].getTime() - theVM.timeStampStop[i].getTime());
+                                usage += num;
+                                console.log(usage);
+                                //console.log("Hello: " + Math.abs(theVM.timeStampStop[i].getTime() - startDate.getTime()));
+                            }
+
+                            else
+                            {
+                                var num = Math.abs(stopDate.getTime() - theVM.timeStampStart[i].getTime());
+                                usage += num
+                                console.log(usage);
+                            }
                         }
 
                         else
                         {
-                            usage += stop - start;
+                            //console.log("not working2 ");
                         }
-                        
                     }
+                    fn(usage);
                 }
-                fn(usage);
             });   
         }
 
@@ -240,19 +305,35 @@ socket1.on('connection', function(socket)
                             {
                                   
                                 var j;
-                                
-                                for(j = 0; j < theVM.timeStampStop.length; j++)
+                                if(theVM)
                                 {
-                                    totalCharge += theVM.timeStampStop[j] - theVM.timeStampStart[j];
-                                    console.log(totalCharge);
-                                    if(theVM.vmID == someUser.vmsOwned[someUser.vmsOwned.length-1])
+                                    for(j = 0; j < theVM.timeStampStop.length; j++)
                                     {
-                                        console.log("Working" + totalCharge);
-                                        fn(totalCharge);
+                                        if(theVM.timeStampType[i] == "basic")
+                                        {
+                                            totalCharge += (theVM.timeStampStop[j] - theVM.timeStampStart[j]) * 0.01;
+                                        }
+
+                                        else if(theVM.timeStampType[i] == "large")
+                                        {
+                                            totalCharge += (theVM.timeStampStop[j] - theVM.timeStampStart[j])*0.1;
+                                        }
+
+                                        else
+                                        {
+                                            totalCharge += (theVM.timeStampStop[j] - theVM.timeStampStart[j]);
+                                        }
+                                        
+                                        console.log(totalCharge);
+                                        if(theVM.vmID == someUser.vmsOwned[someUser.vmsOwned.length-1])
+                                        {
+                                            console.log("Working" + totalCharge);
+                                            fn(totalCharge);
+                                        }
+                                        
                                     }
-                                    
                                 }
-                                });
+                            });
             
                         }      
                     }
