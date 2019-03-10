@@ -115,7 +115,7 @@ socket1.on('connection', function(socket)
             //generate random id
             id = new Date().getTime();
             var queryPromise = user.findOne({userName: ccID}).exec();
-            
+            g
             queryPromise.then(
                 function(someUser)
                 { 
