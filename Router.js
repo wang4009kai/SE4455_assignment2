@@ -9,17 +9,17 @@ var response;
 
 server.use(bodyParser.json());
 server.use(cors());
+
+//Connect to resource agent
 socket.on('connect', function()
 {
     socket.on("clientEvent", function(data)
     {
-        console.log("Working2...");
-        //socket.emit("serverEvent", "Hello!");
         response = data;
     })
 });
 
-
+//Handle user login
 server.post('/login', (req, res) =>
 {
     socket.emit("serverEvent", "Hello!", "Hello!", "Hello!", req.body.userName, req.body.password, req.body.type, "login", Date(), function(data)
@@ -30,6 +30,7 @@ server.post('/login', (req, res) =>
     });
 }),
 
+//Handle new user sign-up
 server.post('/signup', (req, res) =>
 {
     console.log("Hello!");
@@ -52,6 +53,7 @@ server.post('/getVM', (req,res) =>
     });
 }),
 
+//Handle creating new VM
 server.post('/createServer', (req, res) =>
 {
     socket.emit("serverEvent", "Hello!", "Hello!", "Hello!", req.body.userName, req.body.password, req.body.type, "create", Date(), function(data)
@@ -64,6 +66,7 @@ server.post('/createServer', (req, res) =>
 
 }),
 
+//Handle starting selected VM
 server.post('/startServer', (req, res) =>
 {
     console.log("Working...");
@@ -77,6 +80,7 @@ server.post('/startServer', (req, res) =>
 
 }),
 
+//Handle stopping selected VM
 server.post('/stopServer', (req, res) =>
 {
     console.log("Working...");
@@ -90,6 +94,7 @@ server.post('/stopServer', (req, res) =>
 
 }),
 
+//Handle deleting selected VM
 server.post('/deleteServer', (req, res) =>
 {
     console.log("Working...");
@@ -101,6 +106,7 @@ server.post('/deleteServer', (req, res) =>
     });
 }),
 
+//Handle upgrading 
 server.post('/upgrade', (req, res) =>
 {
     console.log("Working...");
@@ -113,6 +119,7 @@ server.post('/upgrade', (req, res) =>
     
 }),
 
+//Request usage time for selected VM
 server.post('/requestTime', (req, res) =>
 {
     console.log("Working...");
@@ -127,6 +134,7 @@ server.post('/requestTime', (req, res) =>
 
 }),
 
+//Request total usage charges for current user
 server.post('/totalCharges', (req, res) =>
 {
     console.log("Working...");

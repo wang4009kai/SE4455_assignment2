@@ -11,13 +11,14 @@ const vm = mongoose.model('vm');
 var cors = require('cors');
 var response;
 
-
+//Connect with the VIM
 socket1.on('connection', function(socket)
 {
     console.log("Working1...");
     socket.on("serverEvent", function(start, stop, vmID, ccID, ccPassword, vmType, eventType, date, fn)
     {
         
+        //Handle user login
         if(eventType == "login")
         {
             var loggedInUser =
@@ -25,12 +26,7 @@ socket1.on('connection', function(socket)
                 userName: ccID,
                 password: ccPassword,
             }
-        
-            console.log(loggedInUser.userName);
-            console.log(loggedInUser.password);
-
             var theUser;
-
             user.findOne({userName: ccID}, function(err, someUser)
             {
                 if(someUser)
@@ -55,6 +51,7 @@ socket1.on('connection', function(socket)
 
         }
 
+        //Handle new user signup
         else if(eventType == "signup")
         {
             console.log('made it to login route');
@@ -72,6 +69,7 @@ socket1.on('connection', function(socket)
                 });
         }
 
+        //Return a list of VMs owned by the current user
         else if(eventType == "getVM")
         {
             user.findOne({userName: ccID}, function(err, someUser)
@@ -109,13 +107,12 @@ socket1.on('connection', function(socket)
 
         }
 
+        //Create a new VM
         else if(eventType == "create")
         {
-            console.log("Working...");
-            //generate random id
+            //generate unique id
             id = new Date().getTime();
             var queryPromise = user.findOne({userName: ccID}).exec();
-            g
             queryPromise.then(
                 function(someUser)
                 { 
@@ -133,7 +130,7 @@ socket1.on('connection', function(socket)
         //Add start timestamp to list of timestamps
         else if(eventType == "start")
         {
-            console.log("Working...");
+            //Find the requested VM
             vm.findOne({vmID: vmID}, function(err, theVM)
             {
                 if(theVM)
@@ -154,7 +151,7 @@ socket1.on('connection', function(socket)
         //Add stop timestamp and type to list of timestamps
         else if(eventType == "stop")
         {
-            console.log("Working...");
+            //Find the requested VM
             vm.findOne({vmID: vmID}, function(err, theVM)
             {
                 if(theVM)
@@ -175,9 +172,12 @@ socket1.on('connection', function(socket)
         //Delete the VM
         else if(eventType == "delete")
         {
+            //Find requested VM
             vm.findOne({vmID: vmID}, function(err, theVM)
             {
                 console.log("Deleting vm");
+                
+                //Get current user and remove deleted VM from ownedVMs list
                 user.findOne({userName: ccID}, function(err, someUser)
                 {
                     var i;
@@ -227,21 +227,17 @@ socket1.on('connection', function(socket)
                 console.log(stopDate);
                 if(theVM)
                 {
-                   
-                    //console.log(theVM.vmID);
-                    //console.log(theVM.timeStampStop.length);
+
                     for(i = 0; i < theVM.timeStampStop.length; i++)
                     {
-                        //console.log("not working...")
                         if(startDate > theVM.timeStampStart[i] && startDate < theVM.timeStampStop[i])
                         {
-                            console.log("This is working.");
+             
                             if(stopDate > theVM.timeStampStop[i])
                             {
                                 var num = Math.abs(theVM.timeStampStop[i].getTime() - startDate.getTime());
                                 usage += num;
                                 console.log(usage);
-                                //console.log("Hello: " + Math.abs(theVM.timeStampStop[i].getTime() - startDate.getTime()));
                             }
     
                             else
@@ -261,7 +257,6 @@ socket1.on('connection', function(socket)
                                 var num = Math.abs(theVM.timeStampStart[i].getTime() - theVM.timeStampStop[i].getTime());
                                 usage += num;
                                 console.log(usage);
-                                //console.log("Hello: " + Math.abs(theVM.timeStampStop[i].getTime() - startDate.getTime()));
                             }
 
                             else
@@ -274,7 +269,7 @@ socket1.on('connection', function(socket)
 
                         else
                         {
-                            //console.log("not working2 ");
+                            console.log("No usage within given time interval.")
                         }
                     }
                     fn(usage);
@@ -285,6 +280,7 @@ socket1.on('connection', function(socket)
         //Add up charges for all vms owned by customer and return
         else if(eventType == "requestTotalCharges")
         {
+             //Get current user and find all owned vms, add up all usage intervals + get cost based on VM type 
                 user.findOne({userName: ccID}, function(err, someUser)
                 {
 
@@ -339,15 +335,4 @@ socket1.on('connection', function(socket)
     
 })
 
-function nextID(name)
-{
-    var result = user.findAndModify(
-        {
-            query: {_id: name},
-            update: {$inc: {seq: 1}},
-            new: true
-        }
-    )
-    return result.seq;
-}
 module.exports = app;
