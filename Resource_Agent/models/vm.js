@@ -31,6 +31,11 @@ const vmSchema = new mongoose.Schema({
         type: String
     }],
 
+    vmStatus:
+    {
+        type: String
+    },
+
     /*timeStamps:
     [
         {

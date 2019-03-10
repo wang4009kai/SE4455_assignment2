@@ -81,10 +81,10 @@ class VMControl extends Component {
             let array = this.state.VMs;
             let index;
             this.state.VMs.map((item, i) => {
-                if(item.id === id)
+                if(item.vmID === id)
                     index = i;
             });
-            array[index].status = 'start';
+            array[index].vmStatus = 'start';
             this.setState({VMs: array});
         }).catch(e => console.log(e));
     }
@@ -98,10 +98,10 @@ class VMControl extends Component {
             let array = this.state.VMs;
             let index;
             this.state.VMs.map((item, i) => {
-                if(item.id === id)
+                if(item.vmID === id)
                     index = i;
             });
-            array[index].status = 'stop';
+            array[index].vmStatus = 'stop';
             this.setState({VMs: array});
         }).catch(e => console.log(e));
     }
@@ -111,11 +111,11 @@ class VMControl extends Component {
             let array = this.state.VMs;
             let index;
             this.state.VMs.map((item, i) => {
-                if(item.id === this.state.focus)
+                if(item.vmID === this.state.focus)
                     index = i;
             });
             let type = this.state.value;
-            if (array[index].type != this.state.value) {
+            if (array[index].vmType!= this.state.value) {
                 axios.post("http://localhost:8080/upgrade",
 
                     {
@@ -123,7 +123,7 @@ class VMControl extends Component {
                         vm: this.state.focus,
                         type: type,
                     }).then( (response) =>{
-                        array[index].type = type;
+                        array[index].vmType = type;
                         this.setState({VMs: array});
                 }).catch(e => console.log(e));
             }
@@ -170,22 +170,22 @@ class VMControl extends Component {
                 <Table.Row>
                     <Table.Cell>
                         <Header as='h2' textAlign='center'>
-                            {item.id}
+                            {item.vmID}
                         </Header>
                     </Table.Cell>
-                    <Table.Cell singleLine>{item.type}</Table.Cell>
-                    <Table.Cell singleLine>{item.status}</Table.Cell>
+                    <Table.Cell singleLine>{item.vmType}</Table.Cell>
+                    <Table.Cell singleLine>{item.vmStatus}</Table.Cell>
                     <Table.Cell>
-                        <Button color='blue' onClick={() => this.upgradeVM(item.id, item.type)}>Modify VM</Button>
+                        <Button color='blue' onClick={() => this.upgradeVM(item.vmID, item.vmType)}>Modify VM</Button>
                     </Table.Cell>
                     <Table.Cell textAlign='right'>
-                        <Button color='red' onClick={() => this.deleteVM(item.id)}>Delete VM</Button>
+                        <Button color='red' onClick={() => this.deleteVM(item.vmID)}>Delete VM</Button>
                     </Table.Cell>
                     <Table.Cell textAlign='right'>
-                        <Button onClick={() => this.startVM(item.id)}>Start VM</Button>
+                        <Button onClick={() => this.startVM(item.vmID)}>Start VM</Button>
                     </Table.Cell>
                     <Table.Cell textAlign='right'>
-                        <Button onClick={() => this.stopVM(item.id)}>Stop VM</Button>
+                        <Button onClick={() => this.stopVM(item.vmID)}>Stop VM</Button>
                     </Table.Cell>
                 </Table.Row>
             )

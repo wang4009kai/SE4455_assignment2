@@ -87,7 +87,7 @@ socket1.on('connection', function(socket)
                             {
                                 if(someVM)
                                 {
-                                    console.log(someVM.vmID);
+                                    console.log(someVM);
                                     vmList.push(someVM);
                                   
                                     if(someVM.vmID == someUser.vmsOwned[someUser.vmsOwned.length-1])
@@ -119,7 +119,7 @@ socket1.on('connection', function(socket)
             queryPromise.then(
                 function(someUser)
                 { 
-                    var vmData = {"vmID": id, "ccID": ccID, "vmType": vmType};
+                    var vmData = {"vmID": id, "ccID": ccID, "vmType": vmType, "vmStatus": "Stopped"};
                     var newVM = new vm(vmData);
                     someUser.vmsOwned.push(id);
                     newVM.save();
@@ -139,6 +139,7 @@ socket1.on('connection', function(socket)
                 if(theVM)
                 {
                     theVM.timeStampStart.push(Date());
+                    theVM.vmStatus = "Started";
                     theVM.save();
                     fn("VM started");
                 }
@@ -160,6 +161,7 @@ socket1.on('connection', function(socket)
                 {
                     theVM.timeStampStop.push(Date());
                     theVM.timeStampType.push(theVM.vmType);
+                    theVM.vmStatus = "Stopped";
                     theVM.save();
                     fn("VM stopped");
                 }
