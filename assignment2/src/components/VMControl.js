@@ -9,7 +9,6 @@ class VMControl extends Component {
             //email: this.props.username,
             email: "a",
             VMs: [],
-            cost: 0,
             showTemplate: false,
             showCost: false,
             time: null,
@@ -33,18 +32,14 @@ class VMControl extends Component {
     }
 
     getCost() {
-        if (this.state.showCost === true) {
-            this.setState({showCost: false});
-        } else {
-            this.setState({showCost: true});
-            axios.post("http://localhost:8080/totalCharges",
-                {
-                    userName: this.state.email,
+        this.setState({showCost: true});
+        axios.post("http://localhost:8080/totalCharges",
+            {
+                userName: this.state.email,
 
-                }).then((response) => {
-                this.setState({cost: response.data});
-            }).catch(e => console.log(e));
-        }
+            }).then((response) => {
+            this.setState({cost: response.data});
+        }).catch(e => console.log(e));
     }
 
     createVM() {
