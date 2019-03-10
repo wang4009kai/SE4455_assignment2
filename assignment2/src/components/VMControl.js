@@ -7,7 +7,7 @@ class VMControl extends Component {
         super(props);
         this.state = {
             //email: this.props.username,
-            email: "a",
+            email: "test2",
             VMs: [],
             showTemplate: false,
             showCost: false,
@@ -208,7 +208,7 @@ class VMControl extends Component {
                         <input type='date' value={item.end} onChange={this.handleTimeEnd.bind(this, i)} />
                     </Table.Cell>
                     <Table.Cell textAlign='right' key={i}>
-                        <Button onClick={() => this.requestTime(item.id, i)}>Get Usage Time</Button>
+                        <Button onClick={() => this.requestTime(item.vmID, i)}>Get Usage Time</Button>
                         <p>{item.usage}</p>
                     </Table.Cell>
                 </Table.Row>

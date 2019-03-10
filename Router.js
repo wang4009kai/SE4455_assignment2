@@ -54,15 +54,10 @@ server.post('/getVM', (req,res) =>
 
 server.post('/createServer', (req, res) =>
 {
-
-    //console.log("user: " + theUser.userName);
-    //console.log("Working...");
-    //console.log(req.body.userName);
-    //console.log(req.body.type)
-    //(vmID, ccID, vmType, eventType, date, fn)
     socket.emit("serverEvent", "Hello!", "Hello!", "Hello!", req.body.userName, req.body.password, req.body.type, "create", Date(), function(data)
     {
         console.log(data);
+
         res.send(data);
 
     });
@@ -118,13 +113,15 @@ server.post('/upgrade', (req, res) =>
     
 }),
 
-server.post('/requestUsage', (req, res) =>
+server.post('/requestTime', (req, res) =>
 {
     console.log("Working...");
-    socket.emit("serverEvent", "Hello!", "Hello!", "Hello!", req.body.userName, req.body.password, req.body.type, "requestUsage", Date(), function(data)
+    //console.log(req.body.vm);
+    console.log(req.body.start);
+    socket.emit("serverEvent", req.body.start, req.body.end, req.body.vm, req.body.userName, req.body.password, req.body.type, "requestUsage", Date(), function(data)
     {
         console.log(data);
-        res.send(data);
+        res.send("Usage: " + data + " milliseconds.");
 
     });
 
@@ -136,7 +133,7 @@ server.post('/totalCharges', (req, res) =>
     socket.emit("serverEvent", "Hello!", "Hello!", "Hello!", req.body.userName, "Hello!", "Hello!", "requestTotalCharges", Date(), function(data)
     {
         console.log(data);
-        res.send("Cost: " + data);
+        res.send("Cost: $" + data);
 
     });
 
