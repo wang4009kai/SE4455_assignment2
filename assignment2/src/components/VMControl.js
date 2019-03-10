@@ -69,6 +69,11 @@ class VMControl extends Component {
                 array.splice(index, 1);
                 this.setState({VMs: array});
         }).catch(e => console.log(e));
+
+        this.setState({action: null});
+        this.setState({showTemplate:false});
+        this.setState({value: null});
+        this.setState({focus: null});
     }
 
     startVM(id) {
@@ -144,21 +149,32 @@ class VMControl extends Component {
         this.setState({focus: null});
     }
 
-    requestTime() {
+    requestTime(id, i) {
         axios.post("http://localhost:8080/requestTime",
             {
                 userName: this.state.email,
-                start: this.state.startTime,
-                end: this.state.endTime,
+                start: this.state.VMs[i].start,
+                end: this.state.VMs[i].end,
+                vm: id,
             }).then( (response) =>{
-            this.setState({time: response.data});
+                let usageList = this.state.VMs;
+                usageList[i].usage = response.data;
+                this.setState({VMs: usageList});
         }).catch(e => console.log(e));
     }
 
-    handleTimeChange = event => {
-        this.setState({
-            [event.target.id]: event.target.value
-        });
+    handleTimeStart(i, e) {
+        let vms = this.state.VMs;
+        const { name, value } = e.target;
+        vms[i].start = value;
+        this.setState({VMs: vms});
+    }
+
+    handleTimeEnd(i, e) {
+        let vms = this.state.VMs;
+        const { name, value } = e.target;
+        vms[i].end = value;
+        this.setState({VMs: vms});
     }
 
     myVM() {
@@ -173,17 +189,29 @@ class VMControl extends Component {
                     </Table.Cell>
                     <Table.Cell singleLine>{item.type}</Table.Cell>
                     <Table.Cell singleLine>{item.status}</Table.Cell>
-                    <Table.Cell>
+                    <Table.Cell  key={i}>
                         <Button color='blue' onClick={() => this.upgradeVM(item.id, item.type)}>Modify VM</Button>
                     </Table.Cell>
-                    <Table.Cell textAlign='right'>
+                    <Table.Cell textAlign='right' key={i}>
                         <Button color='red' onClick={() => this.deleteVM(item.id)}>Delete VM</Button>
                     </Table.Cell>
-                    <Table.Cell textAlign='right'>
+                    <Table.Cell textAlign='right' key={i}>
                         <Button onClick={() => this.startVM(item.id)}>Start VM</Button>
                     </Table.Cell>
-                    <Table.Cell textAlign='right'>
+                    <Table.Cell textAlign='right' key={i}>
                         <Button onClick={() => this.stopVM(item.id)}>Stop VM</Button>
+                    </Table.Cell>
+                    <Table.Cell textAlign='right' key={i}>
+                        <label>Start Time</label>
+                        <input type='date' value={item.start} onChange={this.handleTimeStart.bind(this, i)}  />
+                    </Table.Cell>
+                    <Table.Cell textAlign='right' key={i}>
+                        <label>End Time</label>
+                        <input type='date' value={item.end} onChange={this.handleTimeEnd.bind(this, i)} />
+                    </Table.Cell>
+                    <Table.Cell textAlign='right' key={i}>
+                        <Button onClick={() => this.requestTime(item.id, i)}>Get Usage Time</Button>
+                        <p>{item.usage}</p>
                     </Table.Cell>
                 </Table.Row>
             )
@@ -199,20 +227,6 @@ class VMControl extends Component {
                     { this.state.showCost ? (<Segment>{this.state.cost}</Segment>) : null}
                 </div>
                 <br/>
-                <div>
-                    <Form>
-                        <Form.Field>
-                            <label>Start Time</label>
-                            <input value={this.state.startTime} onChange={this.handleTimeChange}  />
-                        </Form.Field>
-                        <Form.Field>
-                            <label>End Time</label>
-                            <input value={this.state.endTime} onChange={this.handleTimeChange} />
-                        </Form.Field>
-                        <Button onClick={() => this.requestTime()}>Get Usage Time</Button>
-                        <p>{this.state.time}</p>
-                    </Form>
-                </div>
                 <Table celled padded>
                     <Table.Header>
                         <Table.Row>
