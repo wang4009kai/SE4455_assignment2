@@ -10,7 +10,7 @@ class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            authenticated: true,
+            authenticated: false,
             email: ''
         };
         this.updateLogin = this.updateLogin.bind(this);
