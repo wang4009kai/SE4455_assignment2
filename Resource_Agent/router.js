@@ -113,16 +113,9 @@ socket1.on('connection', function(socket)
         {
             console.log("Working...");
             //generate random id
-            var id = Math.floor(Math.random()* 10000 + 1);
+            id = new Date().getTime();
             var queryPromise = user.findOne({userName: ccID}).exec();
             
-            vm.findOne({vmID: id}, function(err, theVM)
-            {
-                if(theVM)
-                {
-                    fn(false);
-                }
-            });
             queryPromise.then(
                 function(someUser)
                 { 
@@ -345,4 +338,16 @@ socket1.on('connection', function(socket)
     })
     
 })
+
+function nextID(name)
+{
+    var result = user.findAndModify(
+        {
+            query: {_id: name},
+            update: {$inc: {seq: 1}},
+            new: true
+        }
+    )
+    return result.seq;
+}
 module.exports = app;
