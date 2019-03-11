@@ -300,14 +300,16 @@ socket1.on('connection', function(socket)
                     if(someUser)
                     {
 						async.each(someUser.vmsOwned, function(dummyVM, callback) {
-							vmCount++;
 							
+                                
                             vm.findOne({vmID: dummyVM}, function(err, theVM)
                             {
                                   
-                                console.log('vmcount is right now: ' + vmCount);
+
                                 if(theVM)
                                 {
+									vmCount++;
+									console.log('vmcount is right now: ' + vmCount);
 									var j = 0;
 									async.each(theVM.timeStampStop, function(aTimeStamp, callback) {
 										
@@ -328,7 +330,7 @@ socket1.on('connection', function(socket)
                                         }
                                         
                                         console.log('we are currently at i, j: ' + vmCount +','+j );
-                                        if(vmCount == someUser.vmsOwned.length)
+                                        if(vmCount == someUser.vmsOwned.length && j == theVM.timeStampStop.length - 1)
                                         {
                                             console.log("Sending total charge now: " + totalCharge);
                                             fn(totalCharge);
