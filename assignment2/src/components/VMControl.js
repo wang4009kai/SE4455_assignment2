@@ -25,7 +25,17 @@ class VMControl extends Component {
                 userName: this.state.email,
             }).then( (response) =>{
                 let storage = [];
-                response.data.forEach(item => {storage.push(item); console.log(item);});
+                response.data.forEach(item => {
+                    console.log(item);
+                    if(item.vmStatus === 'Started') {
+                        item.startBtn = true;
+                        item.stopBtn = false;
+                    } else if(item.vmStatus === 'Stopped') {
+                        item.startBtn = false;
+                        item.stopBtn = true;
+                    }
+                    storage.push(item);
+                });
                 this.setState({VMs: storage});
             }).catch(e => console.log(e));
     }
