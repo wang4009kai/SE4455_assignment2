@@ -6,8 +6,7 @@ class VMControl extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            //email: this.props.username,
-            email: "test2",
+            email: this.props.username,
             VMs: [],
             showTemplate: false,
             showCost: false,
@@ -61,15 +60,19 @@ class VMControl extends Component {
                 vm: id,
             }).then( (response) => {
                 let array = this.state.VMs;
-                let index = this.state.VMs.indexOf(id);
+                let index;
+                this.state.VMs.map((item, i) => {
+                    if(item.vmID === id)
+                        index = i;
+                });
                 array.splice(index, 1);
                 this.setState({VMs: array});
-        }).catch(e => console.log(e));
+            }).catch(e => console.log(e));
 
-        this.setState({action: null});
-        this.setState({showTemplate:false});
-        this.setState({value: null});
-        this.setState({focus: null});
+            this.setState({action: null});
+            this.setState({showTemplate:false});
+            this.setState({value: null});
+            this.setState({focus: null});
     }
 
     startVM(id) {
