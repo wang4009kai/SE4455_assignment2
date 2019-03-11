@@ -314,12 +314,12 @@ socket1.on('connection', function(socket)
 									async.each(theVM.timeStampStop, function(aTimeStamp, callback) {
 										
 										
-                                        if(theVM.timeStampType[vmCount] == "basic")
+                                        if(theVM.timeStampType[j] == "basic")
                                         {
                                             totalCharge += (theVM.timeStampStop[j] - theVM.timeStampStart[j]) * 0.01;
                                         }
 
-                                        else if(theVM.timeStampType[vmCount] == "large")
+                                        else if(theVM.timeStampType[j] == "large")
                                         {
                                             totalCharge += (theVM.timeStampStop[j] - theVM.timeStampStart[j])*0.1;
                                         }
