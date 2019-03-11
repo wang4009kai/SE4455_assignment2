@@ -10,6 +10,7 @@ const user = mongoose.model('user');
 const vm = mongoose.model('vm');
 var cors = require('cors');
 var response;
+var async = require('async');
 
 //Connect with the VIM
 socket1.on('connection', function(socket)
@@ -78,25 +79,34 @@ socket1.on('connection', function(socket)
                 {
                     var vmList = [];
                     var i = 0;
-                    for(i; i < someUser.vmsOwned.length; i++)
-                    {
-                        
-                        vm.findOne({vmID: someUser.vmsOwned[i]}, function(err, someVM)
+					
+					        async.each(someUser.vmsOwned, function(userVM, callback) {
+								
+							vm.findOne({vmID: userVM}, function(err, someVM)
                             {
                                 if(someVM)
-                                {
-                                    console.log(someVM);
+                                {	
+									i++;
                                     vmList.push(someVM);
-                                  
-                                    if(someVM.vmID == someUser.vmsOwned[someUser.vmsOwned.length-1])
+                                    if(i == someUser.vmsOwned.length)
                                     {
-                                        console.log("Working...");
                                         fn(vmList);
                                     }
+									callback();
+
                                 }
                             });
-                        
-                    }
+							}, function(err) {
+								// if any of the query processing produced an error, err would equal that error
+								if (err) {
+									// One of the iterations produced an error.
+									// All processing will now stop.
+									console.log('A query failed to process');
+								} else {
+									console.log('All queries have been processed successfully');
+									//do other things here
+								}
+							});
 
                 }
                 else
@@ -280,30 +290,34 @@ socket1.on('connection', function(socket)
         //Add up charges for all vms owned by customer and return
         else if(eventType == "requestTotalCharges")
         {
+			console.log("requesting costs");
              //Get current user and find all owned vms, add up all usage intervals + get cost based on VM type 
                 user.findOne({userName: ccID}, function(err, someUser)
                 {
 
-                    var i;
+                    var vmCount=0;
                     var totalCharge = 0;
                     if(someUser)
                     {
-                        for(i = 0; i < someUser.vmsOwned.length; i++)    
-                        {
-                            vm.findOne({vmID: someUser.vmsOwned[i]}, function(err, theVM)
+						async.each(someUser.vmsOwned, function(dummyVM, callback) {
+							vmCount++;
+							
+                            vm.findOne({vmID: dummyVM}, function(err, theVM)
                             {
                                   
-                                var j;
+                                console.log('vmcount is right now: ' + vmCount);
                                 if(theVM)
                                 {
-                                    for(j = 0; j < theVM.timeStampStop.length; j++)
-                                    {
-                                        if(theVM.timeStampType[i] == "basic")
+									var j = 0;
+									async.each(theVM.timeStampStop, function(aTimeStamp, callback) {
+										
+										
+                                        if(theVM.timeStampType[vmCount] == "basic")
                                         {
                                             totalCharge += (theVM.timeStampStop[j] - theVM.timeStampStart[j]) * 0.01;
                                         }
 
-                                        else if(theVM.timeStampType[i] == "large")
+                                        else if(theVM.timeStampType[vmCount] == "large")
                                         {
                                             totalCharge += (theVM.timeStampStop[j] - theVM.timeStampStart[j])*0.1;
                                         }
@@ -313,18 +327,64 @@ socket1.on('connection', function(socket)
                                             totalCharge += (theVM.timeStampStop[j] - theVM.timeStampStart[j]);
                                         }
                                         
-                                        console.log(totalCharge);
-                                        if(theVM.vmID == someUser.vmsOwned[someUser.vmsOwned.length-1])
+                                        console.log('we are currently at i, j: ' + vmCount +','+j );
+                                        if(vmCount == someUser.vmsOwned.length)
                                         {
-                                            console.log("Working" + totalCharge);
+                                            console.log("Sending total charge now: " + totalCharge);
                                             fn(totalCharge);
                                         }
+										j++;
+										callback();
+										}, function(err) {
+											// if any of the query processing produced an error, err would equal that error
+											if (err) {
+												// One of the iterations produced an error.
+												// All processing will now stop.
+												console.log('A query failed to process');
+											} else {
+												console.log('All queries have been processed successfully');
+												//do other things here
+											}
+									});
+                                    // for(j = 0; j < theVM.timeStampStop.length; j++)
+                                    // {
+                                        // if(theVM.timeStampType[i] == "basic")
+                                        // {
+                                            // totalCharge += (theVM.timeStampStop[j] - theVM.timeStampStart[j]) * 0.01;
+                                        // }
+
+                                        // else if(theVM.timeStampType[i] == "large")
+                                        // {
+                                            // totalCharge += (theVM.timeStampStop[j] - theVM.timeStampStart[j])*0.1;
+                                        // }
+
+                                        // else
+                                        // {
+                                            // totalCharge += (theVM.timeStampStop[j] - theVM.timeStampStart[j]);
+                                        // }
                                         
-                                    }
+                                        // console.log(totalCharge);
+                                        // if(i == someUser.vmsOwned.length)
+                                        // {
+                                            // console.log("Sending total charge now: " + totalCharge);
+                                            // fn(totalCharge);
+                                        // }
+                                        
+                                    // }
                                 }
                             });
-            
-                        }      
+							callback();
+                        },  function(err) {
+											// if any of the query processing produced an error, err would equal that error
+											if (err) {
+												// One of the iterations produced an error.
+												// All processing will now stop.
+												console.log('A query failed to process');
+											} else {
+												console.log('All queries have been processed successfully');
+												//do other things here
+											}
+									});
                     }
 
                 });

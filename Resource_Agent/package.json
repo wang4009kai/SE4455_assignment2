@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "async": "^2.6.2",
     "missing": "0.0.1",
     "mongoose": "^5.4.18",
     "nodemon": "^1.18.10"
