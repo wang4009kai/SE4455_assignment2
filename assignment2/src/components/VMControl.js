@@ -31,7 +31,6 @@ class VMControl extends Component {
     }
 
     getCost() {
-        this.setState({showCost: true});
         axios.post("http://localhost:8080/totalCharges",
             {
                 userName: this.state.email,
@@ -87,7 +86,9 @@ class VMControl extends Component {
                 if(item.vmID === id)
                     index = i;
             });
-            array[index].vmStatus = 'start';
+            array[index].vmStatus = 'Started';
+            array[index].startBtn = true;
+            array[index].stopBtn = false;
             this.setState({VMs: array});
         }).catch(e => console.log(e));
     }
@@ -104,7 +105,9 @@ class VMControl extends Component {
                 if(item.vmID === id)
                     index = i;
             });
-            array[index].vmStatus = 'stop';
+            array[index].vmStatus = 'Stopped';
+            array[index].startBtn = false;
+            array[index].stopBtn = true;
             this.setState({VMs: array});
         }).catch(e => console.log(e));
     }
@@ -196,10 +199,10 @@ class VMControl extends Component {
                         <Button color='red' onClick={() => this.deleteVM(item.vmID)}>Delete VM</Button>
                     </Table.Cell>
                     <Table.Cell textAlign='right'>
-                        <Button onClick={() => this.startVM(item.vmID)}>Start VM</Button>
+                        <Button disabled={item.startBtn} onClick={() => this.startVM(item.vmID)}>Start VM</Button>
                     </Table.Cell>
                     <Table.Cell textAlign='right'>
-                        <Button onClick={() => this.stopVM(item.vmID)}>Stop VM</Button>
+                        <Button disabled={item.stopBtn} onClick={() => this.stopVM(item.vmID)}>Stop VM</Button>
 
                     </Table.Cell>
                     <Table.Cell textAlign='right' key={i}>
@@ -225,7 +228,7 @@ class VMControl extends Component {
             <div>
                 <div>
                     <Button onClick={() => this.getCost()}>Get Cost</Button>
-                    { this.state.showCost ? (<Segment>{this.state.cost}</Segment>) : null}
+                    <Segment>{this.state.cost}</Segment>
                 </div>
                 <br/>
                 <Table celled padded>
