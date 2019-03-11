@@ -186,7 +186,7 @@ socket1.on('connection', function(socket)
                         if(someUser.vmsOwned[i] == theVM.vmID)
                         {
                             console.log(i);
-                            someUser.vmsOwned.splice(i);
+                            someUser.vmsOwned.splice(i, 1);
                             someUser.save();
                             theVM.delete();
                             fn("Deleted the VM.");

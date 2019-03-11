@@ -97,7 +97,7 @@ server.post('/stopServer', (req, res) =>
 //Handle deleting selected VM
 server.post('/deleteServer', (req, res) =>
 {
-    console.log("Working...");
+    console.log(req.body.vm);
     socket.emit("serverEvent", "Hello!", "Hello!", req.body.vm, req.body.userName, req.body.password, req.body.type, "delete", Date(), function(data)
     {
         console.log(data);
