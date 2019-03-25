@@ -17,7 +17,7 @@ class Login extends Component {
     }
 
     validateLogin() {
-        axios.post("http://localhost:8080/login",
+        axios.post("http://se4455-wang4009kai.c9users.io:8080/login",
             {
                 userName: this.state.email,
                 password: this.state.password

@@ -3,7 +3,7 @@ var express = require('express');
 var server = express.Router();
 var bodyParser = require('body-parser');
 var io = require('socket.io-client');
-var socket = io.connect('http://localhost:3000', {reconnection: true});
+var socket = io.connect('http://se4455-wang4009kai.c9users.io:8082', {reconnection: true});
 var cors = require('cors');
 var response;
 

@@ -20,7 +20,7 @@ class VMControl extends Component {
     handleChange = (e, { value }) => this.setState({ value })
 
     getVMs() {
-        axios.post("http://localhost:8080/getVM",
+        axios.post("http://se4455-wang4009kai.c9users.io:8080/getVM",
             {
                 userName: this.state.email,
             }).then( (response) =>{
@@ -41,7 +41,7 @@ class VMControl extends Component {
     }
 
     getCost() {
-        axios.post("http://localhost:8080/totalCharges",
+        axios.post("http://se4455-wang4009kai.c9users.io:8080/totalCharges",
             {
                 userName: this.state.email,
 
@@ -63,7 +63,7 @@ class VMControl extends Component {
     }
 
     deleteVM(id) {
-        axios.post("http://localhost:8080/deleteServer",
+        axios.post("http://se4455-wang4009kai.c9users.io:8080/deleteServer",
             {
                 userName: this.state.email,
                 vm: id,
@@ -85,7 +85,7 @@ class VMControl extends Component {
     }
 
     startVM(id) {
-        axios.post("http://localhost:8080/startServer",
+        axios.post("http://se4455-wang4009kai.c9users.io:8080/startServer",
             {
                 userName: this.state.email,
                 vm: id,
@@ -104,7 +104,7 @@ class VMControl extends Component {
     }
 
     stopVM(id) {
-        axios.post("http://localhost:8080/stopServer",
+        axios.post("http://se4455-wang4009kai.c9users.io:8080/stopServer",
             {
                 userName: this.state.email,
                 vm: id,
@@ -132,7 +132,7 @@ class VMControl extends Component {
             });
             let type = this.state.value;
             if (array[index].vmType!= this.state.value) {
-                axios.post("http://localhost:8080/upgrade",
+                axios.post("http://se4455-wang4009kai.c9users.io:8080/upgrade",
 
                     {
                         userName: this.state.email,
@@ -144,7 +144,7 @@ class VMControl extends Component {
                 }).catch(e => console.log(e));
             }
         } else if (this.state.action === 'create') {
-            axios.post("http://localhost:8080/createServer",
+            axios.post("http://se4455-wang4009kai.c9users.io:8080/createServer",
                 {
                     userName: this.state.email,
                     type: this.state.value,
@@ -163,7 +163,7 @@ class VMControl extends Component {
     }
 
     requestTime(id, i) {
-        axios.post("http://localhost:8080/requestTime",
+        axios.post("http://se4455-wang4009kai.c9users.io:8080/requestTime",
             {
                 userName: this.state.email,
                 start: this.state.VMs[i].start,
@@ -200,8 +200,8 @@ class VMControl extends Component {
                             {item.vmID}
                         </Header>
                     </Table.Cell>
-                    <Table.Cell singleLine>{item.vmType}</Table.Cell>
-                    <Table.Cell singleLine>{item.vmStatus}</Table.Cell>
+                    <Table.Cell singleLine> {item.vmType} </Table.Cell>
+                    <Table.Cell singleLine> {item.vmStatus} </Table.Cell>
                     <Table.Cell>
                         <Button color='blue' onClick={() => this.upgradeVM(item.vmID, item.vmType)}>Modify VM</Button>
                     </Table.Cell>
